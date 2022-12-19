@@ -19,6 +19,7 @@ vector<string> history;
 struct Client {
 	SOCKET socket;
 	string nickname;
+	int color;
 };
 
 deque<Client> ClientQ;
@@ -106,6 +107,15 @@ int main() {
 			client_message[client_message_length] = '\0';
 
 			obj.nickname = client_message;
+
+
+			send(obj.socket, "Enter your nickname color code", 20, 0);
+			char client_message[DEFAULT_BUFLEN];
+
+			int client_message_length = recv(obj.socket, client_message, DEFAULT_BUFLEN, 0);
+			client_message[client_message_length] = '\0';
+
+			obj.color = atoi(client_message);
 
 
 			string NewClientMessage = "\v";

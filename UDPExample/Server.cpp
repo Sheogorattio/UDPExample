@@ -93,18 +93,9 @@ int main() {
 			obj.nickname = client_message;
 
 
-			send(obj.socket, "Enter your color code:\
-							  Black		30\
-							  Red		31\
-							  Green		32\
-							  Yellow	33\
-							  Blue		34\
-							  Magenta	35\
-							  Cyan		36\
-							  White		37", 20, 0);
-			char client_message[DEFAULT_BUFLEN];
+			send(obj.socket, "Enter your color code:\nBlack\t30\nRed\t31\nGreen\t32\nYellow\t33\nBlue\t34\nMagenta\t35\nCyan\t36\nWhite\t37", 20, 0);
 
-			int client_message_length = recv(obj.socket, client_message, DEFAULT_BUFLEN, 0);
+			client_message_length = recv(obj.socket, client_message, DEFAULT_BUFLEN, 0);
 			client_message[client_message_length] = '\0';
 
 			obj.colorMode.append(client_message);
@@ -119,7 +110,7 @@ int main() {
 				}
 			}
 
-			string NewClientMessage = "\v";//sending message
+			string NewClientMessage;//sending message
 			for (int i = 0; i < obj.nickname.size(); i++) {
 				NewClientMessage.push_back(obj.nickname[i]);
 			}

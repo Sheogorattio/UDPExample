@@ -19,33 +19,28 @@ SOCKET client_socket;
 DWORD WINAPI Sender(void* param)
 {
     while (true) {
-        // cout << "Please insert your query for server: ";
         char query[DEFAULT_BUFLEN];
         
         cin.getline(query, DEFAULT_BUFLEN);
-        cout << '\e';
-        for (int i = 0; i < strlen(query); i++) {
-            cout << '\b';
-        }
+
         send(client_socket, query, strlen(query), 0);
 
-        // альтернативный вариант ввода данных стрингом
-        // string query;
-        // getline(cin, query);
-        // send(client_socket, query.c_str(), query.size(), 0);
     }
 }
 
 DWORD WINAPI Receiver(void* param)
 {
     while (true) {
-        char response[DEFAULT_BUFLEN];
+        char color[DEFAULT_BUFLEN], response[DEFAULT_BUFLEN];
+
         int result = recv(client_socket, response, DEFAULT_BUFLEN, 0);
         response[result] = '\0';
 
-        // cout << "...\nYou have new response from server: " << response << "\n";
-        cout << response << "\n";
-        // cout << "Please insert your query for server: ";
+        result = recv(client_socket, color, DEFAULT_BUFLEN, 0);
+        color[result] = '\0';
+
+
+        cout << color << response << "\n";
     }
 }
 
@@ -55,7 +50,7 @@ BOOL ExitHandler(DWORD whatHappening)
     {
     case CTRL_C_EVENT: // closing console by ctrl + c
     case CTRL_BREAK_EVENT: // ctrl + break
-    case CTRL_CLOSE_EVENT: // closing the console window by X button
+    case CTRL_CLOSE_EVENT: // closing by X button
       return(TRUE);
         break;
     default:
@@ -65,14 +60,12 @@ BOOL ExitHandler(DWORD whatHappening)
 
 int main()
 {
-    // обработчик закрытия окна консоли
-    //SetConsoleCtrlHandler((PHANDLER_ROUTINE)ExitHandler, true);
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)ExitHandler, true);
 
     string IPADDR;
 
     system("title Client");
 
-    // initialize Winsock
     WSADATA wsaData;
     int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (iResult != 0) {
@@ -84,7 +77,6 @@ int main()
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
-    // разрешить адрес сервера и порт
 
     cout << "Enter server IP:\t";
     cin >> IPADDR;
@@ -97,9 +89,9 @@ int main()
     }
 
     addrinfo* ptr = nullptr;
-    // пытаться подключиться к адресу, пока не удастся
+
     for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
-        // создать сокет на стороне клиента для подключения к серверу
+
         client_socket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 
         if (client_socket == INVALID_SOCKET) {
@@ -108,7 +100,7 @@ int main()
             return 3;
         }
 
-        // connect to server
+
         iResult = connect(client_socket, ptr->ai_addr, (int)ptr->ai_addrlen);
         if (iResult == SOCKET_ERROR) {
             closesocket(client_socket);
@@ -125,6 +117,22 @@ int main()
         WSACleanup();
         return 5;
     }
+
+    char response[DEFAULT_BUFLEN];
+    int result = recv(client_socket, response, DEFAULT_BUFLEN, 0);
+    response[result] = '\0';
+    cout <<  response << "\n";
+
+    char query[DEFAULT_BUFLEN];
+    cin.getline(query, DEFAULT_BUFLEN);
+    send(client_socket, query, strlen(query), 0);
+
+    result = recv(client_socket, response, DEFAULT_BUFLEN, 0);
+    response[result] = '\0';
+    cout << response << "\n";
+
+    cin.getline(query, DEFAULT_BUFLEN);
+    send(client_socket, query, strlen(query), 0);
 
     CreateThread(0, 0, Sender, 0, 0, 0);
     CreateThread(0, 0, Receiver, 0, 0, 0);
